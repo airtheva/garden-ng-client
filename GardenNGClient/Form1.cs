@@ -97,6 +97,19 @@ namespace GardenNGClient
 
         }
 
+        private void button6_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Multiselect = false;
+            dialog.Filter = "th123.exe|th123.exe";
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                textBox7.Text = dialog.FileName;
+            }
+
+        }
+
         private void button4_Click(object sender, EventArgs e)
         {
             loadSettings();

@@ -126,10 +126,12 @@
 由于最近接了个挣钱的项目，所以花在这上面的时间不是很多，大概3天10个小时以上吧，只把必须的功能完成了。
 比如聊天功能，用户功能（其实目前也没什么用233）。
 最主要的应该是菊花生成功能。目前只完成了UDP Socket Proxy模式，不需要管理员权限，可以放心使用。
-服务端和客户端的源代码正在准备放到GitHub上，请关注如下网址：
-https://github.com/airtheva/
 
-20140417</value>
+源代码：
+https://github.com/airtheva/garden-ng-client/
+
+协议：
+MIT</value>
   </data>
   <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>

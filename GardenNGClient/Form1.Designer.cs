@@ -68,6 +68,9 @@
             this.richTextBox2 = new System.Windows.Forms.RichTextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.button6 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -135,9 +138,9 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(6, 149);
+            this.button2.Location = new System.Drawing.Point(6, 20);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(187, 23);
+            this.button2.Size = new System.Drawing.Size(187, 152);
             this.button2.TabIndex = 5;
             this.button2.Text = "启动游戏";
             this.button2.UseVisualStyleBackColor = true;
@@ -191,6 +194,8 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.groupBox9);
+            this.tabPage2.Controls.Add(this.groupBox8);
             this.tabPage2.Controls.Add(this.groupBox3);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
@@ -208,12 +213,12 @@
             this.groupBox3.Controls.Add(this.textBox3);
             this.groupBox3.Controls.Add(this.label2);
             this.groupBox3.Controls.Add(this.groupBox4);
-            this.groupBox3.Location = new System.Drawing.Point(277, 122);
+            this.groupBox3.Location = new System.Drawing.Point(498, 60);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(212, 234);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "菊花生成";
+            this.groupBox3.Text = "中转映射";
             // 
             // button3
             // 
@@ -237,9 +242,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(6, 162);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(77, 12);
+            this.label3.Size = new System.Drawing.Size(53, 12);
             this.label3.TabIndex = 5;
-            this.label3.Text = "中转菊花地址";
+            this.label3.Text = "中转地址";
             // 
             // textBox3
             // 
@@ -253,9 +258,9 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(6, 123);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(77, 12);
+            this.label2.Size = new System.Drawing.Size(53, 12);
             this.label2.TabIndex = 3;
-            this.label2.Text = "打洞菊花地址";
+            this.label2.Text = "打洞地址";
             // 
             // groupBox4
             // 
@@ -266,7 +271,7 @@
             this.groupBox4.Size = new System.Drawing.Size(200, 100);
             this.groupBox4.TabIndex = 2;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "生成模式";
+            this.groupBox4.Text = "模式";
             // 
             // radioButton2
             // 
@@ -305,6 +310,7 @@
             // 
             // 游戏
             // 
+            this.游戏.Controls.Add(this.button6);
             this.游戏.Controls.Add(this.label6);
             this.游戏.Controls.Add(this.textBox7);
             this.游戏.Location = new System.Drawing.Point(57, 324);
@@ -327,7 +333,7 @@
             // 
             this.textBox7.Location = new System.Drawing.Point(6, 32);
             this.textBox7.Name = "textBox7";
-            this.textBox7.Size = new System.Drawing.Size(480, 21);
+            this.textBox7.Size = new System.Drawing.Size(399, 21);
             this.textBox7.TabIndex = 4;
             // 
             // groupBox6
@@ -368,7 +374,7 @@
             this.groupBox5.Controls.Add(this.label4);
             this.groupBox5.Controls.Add(this.textBox2);
             this.groupBox5.Controls.Add(this.label1);
-            this.groupBox5.Location = new System.Drawing.Point(27, 23);
+            this.groupBox5.Location = new System.Drawing.Point(249, 83);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(141, 141);
             this.groupBox5.TabIndex = 0;
@@ -467,6 +473,34 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(80, 17);
             this.toolStripStatusLabel1.Text = "服务器未连接";
             // 
+            // groupBox8
+            // 
+            this.groupBox8.Location = new System.Drawing.Point(19, 148);
+            this.groupBox8.Name = "groupBox8";
+            this.groupBox8.Size = new System.Drawing.Size(200, 100);
+            this.groupBox8.TabIndex = 1;
+            this.groupBox8.TabStop = false;
+            this.groupBox8.Text = "获取地址";
+            // 
+            // groupBox9
+            // 
+            this.groupBox9.Location = new System.Drawing.Point(247, 71);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Size = new System.Drawing.Size(200, 100);
+            this.groupBox9.TabIndex = 2;
+            this.groupBox9.TabStop = false;
+            this.groupBox9.Text = "UPnP映射";
+            // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(411, 30);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(75, 23);
+            this.button6.TabIndex = 5;
+            this.button6.Text = "浏览";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -544,6 +578,9 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.RichTextBox richTextBox2;
         private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.GroupBox groupBox9;
+        private System.Windows.Forms.GroupBox groupBox8;
+        private System.Windows.Forms.Button button6;
     }
 }
 
