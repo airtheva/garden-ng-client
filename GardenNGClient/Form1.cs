@@ -25,6 +25,7 @@ namespace GardenNGClient
 
             Settings settings = Settings.GetInstance();
             API api = API.GetInstance();
+            SWRSMonitor swrsMonitor = SWRSMonitor.GetInstance();
 
             loadSettings();
 
@@ -43,6 +44,16 @@ namespace GardenNGClient
             api.WebSocket.Closed += delegate(Object _sender, EventArgs _e)
             {
                 Invoke(new onClosedDelegate(onClosed), _sender, _e);
+            };
+
+            swrsMonitor.OnGameFound += delegate(Object _sender, EventArgs _e)
+            {
+                toolStripStatusLabel2.Text = "游戏已启动";
+            };
+
+            swrsMonitor.OnGameMiss += delegate(Object _sender, EventArgs _e)
+            {
+                toolStripStatusLabel2.Text = "游戏未启动";
             };
 
         }
@@ -89,6 +100,8 @@ namespace GardenNGClient
             if (File.Exists(gamePath))
             {
                 System.Diagnostics.Process.Start(gamePath);
+
+                SWRSMonitor.GetInstance().Start();
             }
             else
             {
@@ -118,6 +131,14 @@ namespace GardenNGClient
         private void button5_Click(object sender, EventArgs e)
         {
             saveSettings();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+            Console.WriteLine("Closing.");
+            SWRSMonitor.GetInstance().Stop();
+
         }
 
         delegate void onErrorDelegate(Object sender, SuperSocket.ClientEngine.ErrorEventArgs e);

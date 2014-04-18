@@ -5,7 +5,7 @@ using System.Net;
 
 namespace GardenNGClient
 {
-    public static class RawSocket
+    public static class RawUDPSocket
     {
 
         public class UDPPacket {

@@ -69,9 +69,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RawSocket.cs" />
+    <Compile Include="RawUDPSocket.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="SWRSMonitor.cs" />
     <Compile Include="UDPSocketProxy.cs" />
+    <Compile Include="Win32API.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
