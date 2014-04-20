@@ -46,14 +46,19 @@ namespace GardenNGClient
                 Invoke(new onClosedDelegate(onClosed), _sender, _e);
             };
 
-            swrsMonitor.OnGameFound += delegate(Object _sender, EventArgs _e)
+            swrsMonitor.OnGameFound += delegate(Object _sender, SWRSMonitor.GameFoundEventArgs _e)
             {
-                toolStripStatusLabel2.Text = "游戏已启动";
+                toolStripStatusLabel2.Text = String.Format("风险投资{0}已启动", _e.Version);
             };
 
-            swrsMonitor.OnGameMiss += delegate(Object _sender, EventArgs _e)
+            swrsMonitor.OnBattleEnded += delegate(Object _sender, SWRSMonitor.BattleEndedEventArgs _e)
             {
-                toolStripStatusLabel2.Text = "游戏未启动";
+                Invoke(new onBattleEndedDelegate(onBattleEnded), _sender, _e);
+            };
+
+            swrsMonitor.OnGameLost += delegate(Object _sender, EventArgs _e)
+            {
+                toolStripStatusLabel2.Text = "风险投资未启动";
             };
 
         }
@@ -100,13 +105,22 @@ namespace GardenNGClient
             if (File.Exists(gamePath))
             {
                 System.Diagnostics.Process.Start(gamePath);
-
-                SWRSMonitor.GetInstance().Start();
             }
             else
             {
                 MessageBox.Show("呜呜呜，没配置游戏路径或者配置错了，快去配置里看看！");
             }
+
+            SWRSMonitor.GetInstance().Start();
+            toolStripStatusLabel2.Text = "监视开始";
+
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+
+            SWRSMonitor.GetInstance().Stop();
+            toolStripStatusLabel2.Text = "监视停止";
 
         }
 
@@ -145,11 +159,12 @@ namespace GardenNGClient
         delegate void onOpenedDelegate(Object sender, EventArgs e);
         delegate void onMessageReceivedDelegate(Object sender, MessageReceivedEventArgs e);
         delegate void onClosedDelegate(Object sender, EventArgs e);
+        delegate void onBattleEndedDelegate(Object sender, SWRSMonitor.BattleEndedEventArgs e);
 
         void onError(Object sender, SuperSocket.ClientEngine.ErrorEventArgs e)
         {
 
-            toolStripStatusLabel1.Text = "服务器已断开：" + e.Exception.Message + "。";
+            toolStripStatusLabel1.Text = "服务器已断开：" + e.Exception.Message + "";
 
         }
 
@@ -175,7 +190,7 @@ namespace GardenNGClient
                     listBox1.Items.Clear();
 
                     foreach(API.UserData user in users.users) {
-                        listBox1.Items.Add(user.nickname);
+                        listBox1.Items.Add(String.Format("{0}[{1}]", user.nickname, user.identity));
                     }
 
                     listBox1.EndUpdate();
@@ -195,7 +210,7 @@ namespace GardenNGClient
 
                     listBox1.BeginUpdate();
 
-                    listBox1.Items.Add(newUser.nickname);
+                    listBox1.Items.Add(String.Format("{0}[{1}]", newUser.nickname, newUser.identity));
 
                     listBox1.EndUpdate();
 
@@ -224,6 +239,13 @@ namespace GardenNGClient
         void onClosed(Object sender, EventArgs e)
         {
             
+        }
+
+        void onBattleEnded(Object sender, SWRSMonitor.BattleEndedEventArgs e)
+        {
+
+            dataGridView2.Rows.Add(e.Time.ToLocalTime().ToString("yyyyMMdd HH:mm:ss"), "未完成", e.LeftPlayerProfile, e.LeftPlayerCharacter, e.LeftPlayerScore, e.RightPlayerProfile, e.RightPlayerCharacter, e.RightPlayerScore);
+
         }
 
         void loadSettings()
@@ -255,7 +277,7 @@ namespace GardenNGClient
         {
 
             DateTime time = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddSeconds(message.time / 1000).ToLocalTime();
-            richTextBox1.AppendText(String.Format("[{0}] {1}: {2}\n", time.ToString("HH:mm:ss"), message.source, message.message));
+            richTextBox1.AppendText(String.Format("[{0}] {1}[{2}]: {3}\n", time.ToString("HH:mm:ss"), message.nickname, message.identity, message.message));
 
         }
 

@@ -101,6 +101,7 @@ namespace GardenNGClient
         {
 
             public String nickname;
+            public String identity;
 
         }
 
@@ -108,7 +109,8 @@ namespace GardenNGClient
         {
 
             public long time;
-            public String source;
+            public String nickname;
+            public String identity;
             public String message;
 
         }
