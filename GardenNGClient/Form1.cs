@@ -51,11 +51,6 @@ namespace GardenNGClient
                 toolStripStatusLabel2.Text = String.Format("风险投资{0}已启动", _e.Version);
             };
 
-            swrsMonitor.OnBattleEnded += delegate(Object _sender, SWRSMonitor.BattleEndedEventArgs _e)
-            {
-                Invoke(new onBattleEndedDelegate(onBattleEnded), _sender, _e);
-            };
-
             swrsMonitor.OnGameLost += delegate(Object _sender, EventArgs _e)
             {
                 toolStripStatusLabel2.Text = "风险投资未启动";
@@ -70,6 +65,9 @@ namespace GardenNGClient
             {
                 case 0:
                     ActiveControl = textBox1;
+                    break;
+                case 2:
+                    updateRecords();
                     break;
             }
 
@@ -92,9 +90,17 @@ namespace GardenNGClient
             sendMessage();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button8_Click(object sender, EventArgs e)
         {
-            API.GetInstance().Mount("udpSocketProxy");
+
+            Settings settings = Settings.GetInstance();
+
+            settings.Store.Nickname = textBox6.Text;
+
+            settings.Save();
+
+            API.GetInstance().ChangeNickname(settings.Store.Nickname);
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -112,6 +118,7 @@ namespace GardenNGClient
             }
 
             SWRSMonitor.GetInstance().Start();
+            SWRSBattleRecorder.GetInstance().Start();
             toolStripStatusLabel2.Text = "监视开始";
 
         }
@@ -119,9 +126,15 @@ namespace GardenNGClient
         private void button7_Click(object sender, EventArgs e)
         {
 
+            SWRSBattleRecorder.GetInstance().Stop();
             SWRSMonitor.GetInstance().Stop();
             toolStripStatusLabel2.Text = "监视停止";
 
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            API.GetInstance().Mount("udpSocketProxy");
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -241,10 +254,28 @@ namespace GardenNGClient
             
         }
 
-        void onBattleEnded(Object sender, SWRSMonitor.BattleEndedEventArgs e)
+        void appendMessage(API.MessageData message)
         {
 
-            dataGridView2.Rows.Add(e.Time.ToLocalTime().ToString("yyyyMMdd HH:mm:ss"), "未完成", e.LeftPlayerProfile, e.LeftPlayerCharacter, e.LeftPlayerScore, e.RightPlayerProfile, e.RightPlayerCharacter, e.RightPlayerScore);
+            DateTime time = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddSeconds(message.time / 1000).ToLocalTime();
+            richTextBox1.AppendText(String.Format("[{0}] {1}[{2}]: {3}\n", time.ToString("HH:mm:ss"), message.nickname, message.identity, message.message));
+            richTextBox1.SelectionStart = richTextBox1.TextLength;
+            richTextBox1.ScrollToCaret();
+
+        }
+
+        void sendMessage()
+        {
+
+            API.GetInstance().SendMessage(textBox1.Text);
+            textBox1.ResetText();
+
+        }
+
+        void updateRecords()
+        {
+
+            dataGridView2.DataSource = SWRSBattleRecorder.GetInstance().GetDataTable();
 
         }
 
@@ -270,22 +301,6 @@ namespace GardenNGClient
             settings.Store.GamePath = textBox7.Text;
 
             settings.Save();
-
-        }
-
-        void appendMessage(API.MessageData message)
-        {
-
-            DateTime time = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddSeconds(message.time / 1000).ToLocalTime();
-            richTextBox1.AppendText(String.Format("[{0}] {1}[{2}]: {3}\n", time.ToString("HH:mm:ss"), message.nickname, message.identity, message.message));
-
-        }
-
-        void sendMessage()
-        {
-
-            API.GetInstance().SendMessage(textBox1.Text);
-            textBox1.ResetText();
 
         }
 

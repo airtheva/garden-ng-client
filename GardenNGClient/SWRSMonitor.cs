@@ -103,79 +103,79 @@ namespace GardenNGClient
             public const int SUWAKO = 19;
             public const int ROMAN = 20;
 
-            public static String GetCharacter(int characterID)
+            public static String GetCharacterName(int character)
             {
 
-                String character = "";
+                String characterName = "";
 
-                switch (characterID)
+                switch (character)
                 {
                     case 0:
-                        character = "红白";
+                        characterName = "红白";
                         break;
                     case 1:
-                        character = "黑白";
+                        characterName = "黑白";
                         break;
                     case 2:
-                        character = "16";
+                        characterName = "16";
                         break;
                     case 3:
-                        character = "小爱";
+                        characterName = "小爱";
                         break;
                     case 4:
-                        character = "帕秋莉♂GO";
+                        characterName = "帕秋莉♂GO";
                         break;
                     case 5:
-                        character = "妖梦";
+                        characterName = "妖梦";
                         break;
                     case 6:
-                        character = "红魔";
+                        characterName = "红魔";
                         break;
                     case 7:
-                        character = "UU";
+                        characterName = "UU";
                         break;
                     case 8:
-                        character = "紫妈";
+                        characterName = "紫妈";
                         break;
                     case 9:
-                        character = "西瓜";
+                        characterName = "西瓜";
                         break;
                     case 10:
-                        character = "兔子";
+                        characterName = "兔子";
                         break;
                     case 11:
-                        character = "文文";
+                        characterName = "文文";
                         break;
                     case 12:
-                        character = "小町";
+                        characterName = "小町";
                         break;
                     case 13:
-                        character = "19";
+                        characterName = "19";
                         break;
                     case 14:
-                        character = "M子";
+                        characterName = "M子";
                         break;
                     case 15:
-                        character = "早苗";
+                        characterName = "早苗";
                         break;
                     case 16:
-                        character = "⑨";
+                        characterName = "⑨";
                         break;
                     case 17:
-                        character = "中国";
+                        characterName = "中国";
                         break;
                     case 18:
-                        character = "高达";
+                        characterName = "高达";
                         break;
                     case 19:
-                        character = "呱呱";
+                        characterName = "呱呱";
                         break;
                     default:
-                        character = "纳尼？";
+                        characterName = "纳尼？";
                         break;
                 }
 
-                return character;
+                return characterName;
 
             }
 
@@ -213,14 +213,13 @@ namespace GardenNGClient
         {
 
             public DateTime Time;
-            public int Type;
             public String LeftPlayerProfile;
-            public int LeftPlayerCharacterID;
-            public String LeftPlayerCharacter;
+            public int LeftPlayerCharacter;
+            public String LeftPlayerCharacterName;
             public int LeftPlayerScore;
             public String RightPlayerProfile;
-            public int RightPlayerCharacterID;
-            public String RightPlayerCharacter;
+            public int RightPlayerCharacter;
+            public String RightPlayerCharacterName;
             public int RightPlayerScore;
 
         }
@@ -270,6 +269,7 @@ namespace GardenNGClient
                 if (!mIsWatching)
                 {
 
+                    // 完全潇洒の退出。
                     goto Break;
 
                 }
@@ -277,14 +277,14 @@ namespace GardenNGClient
                 if (mHProcess == IntPtr.Zero)
                 {
 
-                    OnGameLost(this, null);
-
+                    // 也是要强行寻找游戏。
                     IntPtr hWnd = IntPtr.Zero;
                     while (true)
                     {
 
                         if (!mIsWatching)
                         {
+                            // Me too.
                             goto Break;
                         }
 
@@ -311,9 +311,13 @@ namespace GardenNGClient
                         else
                         {
                             Thread.Sleep(1000);
+                            continue;
                         }
 
                     }
+                    
+                    // 如果能够执行到这里，那就是找到游戏了。下面输出一些信息。
+
                     Console.WriteLine("hWnd: {0}.", hWnd);
 
                     uint dwProcessId = 0;
@@ -328,10 +332,19 @@ namespace GardenNGClient
                 byte[] lpBuffer = new byte[256];
                 uint lpNumberOfBytesRead = 0;
 
+                // 选择先读取sceneID是因为sceneID从一开始就存在。
+                // 如果这里出错，那就下回再见吧。
                 if (!Win32API.ReadProcessMemory(mHProcess, SWRS_ADDR.SCENEID, lpBuffer, 4, out lpNumberOfBytesRead))
                 {
+
+                    // 触发丢失游戏事件。
+                    OnGameLost(this, null);
+
+                    // 释放与重置。
                     Win32API.CloseHandle(mHProcess);
                     mHProcess = IntPtr.Zero;
+
+                    Thread.Sleep(1000);
                     continue;
                 }
 
@@ -339,58 +352,83 @@ namespace GardenNGClient
 
                 switch (sceneID)
                 {
-                    case SWRSSCENE.BATTLECL:
+                    // 作为服务端或者客户端战斗中，也可能是观战，这时候就要判断CommunicationMode。
                     case SWRSSCENE.BATTLESV:
+                    case SWRSSCENE.BATTLECL:
 
-                        Win32API.ReadProcessMemory(mHProcess, SWRS_ADDR.PBATTLEMGR, lpBuffer, 4, out lpNumberOfBytesRead);
-                        int pBattleMgr = BitConverter.ToInt32(lpBuffer, 0);
-                        Win32API.ReadProcessMemory(mHProcess, pBattleMgr + SWRS_ADDR.BTLMODEOFS, lpBuffer, 4, out lpNumberOfBytesRead);
-                        int battleMode = BitConverter.ToInt32(lpBuffer, 0);
+                        Win32API.ReadProcessMemory(mHProcess, SWRS_ADDR.COMMMODE, lpBuffer, 4, out lpNumberOfBytesRead);
+                        int communicationMode = BitConverter.ToInt32(lpBuffer, 0);
 
-                        switch (battleMode)
+                        switch (communicationMode)
                         {
-                            case BattleMode.END:
-                                if (battleMode != mLastBattleMode)
+                            case SWRSCOMMMODE.SERVER:
+                            case SWRSCOMMMODE.CLIENT:
+
+                                Win32API.ReadProcessMemory(mHProcess, SWRS_ADDR.PBATTLEMGR, lpBuffer, 4, out lpNumberOfBytesRead);
+                                int pBattleMgr = BitConverter.ToInt32(lpBuffer, 0);
+                                Win32API.ReadProcessMemory(mHProcess, pBattleMgr + SWRS_ADDR.BTLMODEOFS, lpBuffer, 4, out lpNumberOfBytesRead);
+                                int battleMode = BitConverter.ToInt32(lpBuffer, 0);
+
+                                switch (battleMode)
                                 {
+                                    case BattleMode.END:
 
-                                    BattleEndedEventArgs e = new BattleEndedEventArgs();
+                                        // 这个在天则观里是OnSWRSParamChange。
+                                        if (battleMode != mLastBattleMode)
+                                        {
 
-                                    e.Time = DateTime.UtcNow;
+                                            BattleEndedEventArgs e = new BattleEndedEventArgs();
 
-                                    Win32API.ReadProcessMemory(mHProcess, SWRS_ADDR.PNETOBJECT, lpBuffer, 4, out lpNumberOfBytesRead);
-                                    int pNetObject = BitConverter.ToInt32(lpBuffer, 0);
+                                            e.Time = DateTime.UtcNow;
 
-                                    Win32API.ReadProcessMemory(mHProcess, pNetObject + SWRS_ADDR.LPROFOFS, lpBuffer, 0x20, out lpNumberOfBytesRead);
-                                    e.LeftPlayerProfile = Encoding.ASCII.GetString(lpBuffer, 0, (int)lpNumberOfBytesRead).Split('\0')[0];
-                                    Win32API.ReadProcessMemory(mHProcess, SWRS_ADDR.LCHARID, lpBuffer, 4, out lpNumberOfBytesRead);
-                                    e.LeftPlayerCharacterID = BitConverter.ToInt32(lpBuffer, 0);
-                                    e.LeftPlayerCharacter = SWRSCHAR.GetCharacter(e.LeftPlayerCharacterID);
-                                    Win32API.ReadProcessMemory(mHProcess, pBattleMgr + SWRS_ADDR.LCHAROFS, lpBuffer, 4, out lpNumberOfBytesRead);
-                                    int pLChar = BitConverter.ToInt32(lpBuffer, 0);
-                                    Win32API.ReadProcessMemory(mHProcess, pLChar + SWRS_ADDR.WINCNTOFS, lpBuffer, 4, out lpNumberOfBytesRead);
-                                    e.LeftPlayerScore = lpBuffer[0];
+                                            Win32API.ReadProcessMemory(mHProcess, SWRS_ADDR.PNETOBJECT, lpBuffer, 4, out lpNumberOfBytesRead);
+                                            int pNetObject = BitConverter.ToInt32(lpBuffer, 0);
 
-                                    Win32API.ReadProcessMemory(mHProcess, pNetObject + SWRS_ADDR.RPROFOFS, lpBuffer, 0x20, out lpNumberOfBytesRead);
-                                    e.RightPlayerProfile = Encoding.ASCII.GetString(lpBuffer, 0, (int)lpNumberOfBytesRead).Split('\0')[0];
-                                    Win32API.ReadProcessMemory(mHProcess, SWRS_ADDR.RCHARID, lpBuffer, 4, out lpNumberOfBytesRead);
-                                    e.RightPlayerCharacterID = BitConverter.ToInt32(lpBuffer, 0);
-                                    e.RightPlayerCharacter = SWRSCHAR.GetCharacter(e.RightPlayerCharacterID);
-                                    Win32API.ReadProcessMemory(mHProcess, pBattleMgr + SWRS_ADDR.RCHAROFS, lpBuffer, 4, out lpNumberOfBytesRead);
-                                    int pRChar = BitConverter.ToInt32(lpBuffer, 0);
-                                    Win32API.ReadProcessMemory(mHProcess, pRChar + SWRS_ADDR.WINCNTOFS, lpBuffer, 4, out lpNumberOfBytesRead);
-                                    e.RightPlayerScore = lpBuffer[0];
+                                            Win32API.ReadProcessMemory(mHProcess, pNetObject + SWRS_ADDR.LPROFOFS, lpBuffer, 0x20, out lpNumberOfBytesRead);
+                                            e.LeftPlayerProfile = Encoding.ASCII.GetString(lpBuffer, 0, (int)lpNumberOfBytesRead).Split('\0')[0];
 
-                                    OnBattleEnded(this, e);
+                                            Win32API.ReadProcessMemory(mHProcess, SWRS_ADDR.LCHARID, lpBuffer, 4, out lpNumberOfBytesRead);
+                                            e.LeftPlayerCharacter = BitConverter.ToInt32(lpBuffer, 0);
+                                            e.LeftPlayerCharacterName = SWRSCHAR.GetCharacterName(e.LeftPlayerCharacter);
 
+                                            Win32API.ReadProcessMemory(mHProcess, pBattleMgr + SWRS_ADDR.LCHAROFS, lpBuffer, 4, out lpNumberOfBytesRead);
+                                            int pLChar = BitConverter.ToInt32(lpBuffer, 0);
+                                            Win32API.ReadProcessMemory(mHProcess, pLChar + SWRS_ADDR.WINCNTOFS, lpBuffer, 4, out lpNumberOfBytesRead);
+                                            e.LeftPlayerScore = lpBuffer[0];
+
+                                            Win32API.ReadProcessMemory(mHProcess, pNetObject + SWRS_ADDR.RPROFOFS, lpBuffer, 0x20, out lpNumberOfBytesRead);
+                                            e.RightPlayerProfile = Encoding.ASCII.GetString(lpBuffer, 0, (int)lpNumberOfBytesRead).Split('\0')[0];
+
+                                            Win32API.ReadProcessMemory(mHProcess, SWRS_ADDR.RCHARID, lpBuffer, 4, out lpNumberOfBytesRead);
+                                            e.RightPlayerCharacter = BitConverter.ToInt32(lpBuffer, 0);
+                                            e.RightPlayerCharacterName = SWRSCHAR.GetCharacterName(e.RightPlayerCharacter);
+
+                                            Win32API.ReadProcessMemory(mHProcess, pBattleMgr + SWRS_ADDR.RCHAROFS, lpBuffer, 4, out lpNumberOfBytesRead);
+                                            int pRChar = BitConverter.ToInt32(lpBuffer, 0);
+                                            Win32API.ReadProcessMemory(mHProcess, pRChar + SWRS_ADDR.WINCNTOFS, lpBuffer, 4, out lpNumberOfBytesRead);
+                                            e.RightPlayerScore = lpBuffer[0];
+
+                                            OnBattleEnded(this, e);
+
+                                        }
+                                        break;
                                 }
+
+                                mLastBattleMode = battleMode;
+
+                                break;
+                            case SWRSCOMMMODE.WATCH:
+                                break;
+                            default:
                                 break;
                         }
 
-                        mLastBattleMode = battleMode;
                         break;
+
                 }
 
                 Thread.Sleep(1000);
+                continue;
 
             }
 
@@ -398,6 +436,7 @@ namespace GardenNGClient
 
             Win32API.CloseHandle(mHProcess);
             mHProcess = IntPtr.Zero;
+            return;
 
         }
 
@@ -416,6 +455,8 @@ namespace GardenNGClient
         {
 
             mIsWatching = false;
+
+            mThread = null;
 
         }
 

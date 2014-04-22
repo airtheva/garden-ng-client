@@ -27,6 +27,13 @@ namespace GardenNGClient
 
             }
 
+            public class ChangeNickname
+            {
+
+                public String nickname;
+
+            }
+
             public class SendMessage
             {
 
@@ -196,6 +203,21 @@ namespace GardenNGClient
             json.type = "sendMessage";
             json.data = new Request.SendMessage();
             json.data.message = message;
+
+            String j = SimpleJson.SimpleJson.SerializeObject(json);
+
+            WebSocket.Send(j);
+
+        }
+
+        public void ChangeNickname(String nickname)
+        {
+
+            Message<Request.ChangeNickname> json = new Message<Request.ChangeNickname>();
+
+            json.type = "changeNickname";
+            json.data = new Request.ChangeNickname();
+            json.data.nickname = nickname;
 
             String j = SimpleJson.SimpleJson.SerializeObject(json);
 
