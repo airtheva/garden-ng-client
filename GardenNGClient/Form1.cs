@@ -56,6 +56,9 @@ namespace GardenNGClient
                 toolStripStatusLabel2.Text = "风险投资未启动";
             };
 
+            // FIXME: Dirty.
+            button2_Click(null, null);
+
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
@@ -65,6 +68,9 @@ namespace GardenNGClient
             {
                 case 0:
                     ActiveControl = textBox1;
+                    break;
+                case 1:
+                    requestSlaves();
                     break;
                 case 2:
                     updateRecords();
@@ -108,13 +114,17 @@ namespace GardenNGClient
 
             String gamePath = Settings.GetInstance().Store.GamePath;
 
-            if (File.Exists(gamePath))
+            if (gamePath.Equals(""))
+            {
+                MessageBox.Show("没配置游戏路径，不能帮你启动游戏了哟！");
+            }
+            else if (File.Exists(gamePath))
             {
                 System.Diagnostics.Process.Start(gamePath);
             }
             else
             {
-                MessageBox.Show("呜呜呜，没配置游戏路径或者配置错了，快去配置里看看！");
+                MessageBox.Show("玛德，游戏路径搞错了吧！");
             }
 
             SWRSMonitor.GetInstance().Start();
@@ -132,9 +142,37 @@ namespace GardenNGClient
 
         }
 
+        private void button11_Click(object sender, EventArgs e)
+        {
+
+            requestSlaves();
+
+        }
+
         private void button3_Click(object sender, EventArgs e)
         {
-            API.GetInstance().Mount("udpSocketProxy");
+
+            API.GetInstance().Mount("udpSocketProxy", (String) dataGridView3.CurrentRow.Cells[1].Value);
+
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            updateRecords();
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Multiselect = false;
+            dialog.Filter = "*.db|*.db";
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                SWRSBattleRecorder.GetInstance().MergeToTSK(dialog.FileName);
+            }
+
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -202,8 +240,8 @@ namespace GardenNGClient
 
                     listBox1.Items.Clear();
 
-                    foreach(API.UserData user in users.users) {
-                        listBox1.Items.Add(String.Format("{0}[{1}]", user.nickname, user.identity));
+                    foreach(KeyValuePair<String, API.UserData> item in users.users) {
+                        listBox1.Items.Add(String.Format("{0}[{1}]", item.Value.nickname, item.Value.identity));
                     }
 
                     listBox1.EndUpdate();
@@ -231,6 +269,23 @@ namespace GardenNGClient
                 case "newMessage":
                     API.Response.NewMessage newMessage = SimpleJson.SimpleJson.DeserializeObject<API.Response.NewMessage>(json.data.ToString());
                     appendMessage(newMessage);
+
+                    break;
+                case "slaves":
+                    API.Response.Slaves slaves = SimpleJson.SimpleJson.DeserializeObject<API.Response.Slaves>(json.data.ToString());
+
+                    dataGridView3.Rows.Clear();
+
+                    foreach(KeyValuePair<String, API.SlaveData> item in slaves.slaves) {
+
+                        int index = dataGridView3.Rows.Add();
+
+                        DataGridViewRow row = dataGridView3.Rows[index];
+
+                        row.Cells[0].Value = item.Value.name;
+                        row.Cells[1].Value = item.Value.address;
+
+                    }
 
                     break;
                 case "forward":
@@ -272,6 +327,13 @@ namespace GardenNGClient
 
         }
 
+        void requestSlaves()
+        {
+
+            API.GetInstance().GetSlaves();
+
+        }
+
         void updateRecords()
         {
 
@@ -283,8 +345,6 @@ namespace GardenNGClient
         {
             Settings settings = Settings.GetInstance();
 
-            textBox2.Text = settings.Store.ServerHost;
-            textBox5.Text = settings.Store.ServerPort.ToString();
             textBox6.Text = settings.Store.Nickname;
             textBox7.Text = settings.Store.GamePath;
 
@@ -295,8 +355,6 @@ namespace GardenNGClient
 
             Settings settings = Settings.GetInstance();
 
-            settings.Store.ServerHost = textBox2.Text;
-            settings.Store.ServerPort = Int32.Parse(textBox5.Text);
             settings.Store.Nickname = textBox6.Text;
             settings.Store.GamePath = textBox7.Text;
 

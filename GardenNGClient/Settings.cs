@@ -13,7 +13,7 @@ namespace GardenNGClient
 
             public String ServerHost = "114.215.177.153";
             //public String ServerHost = "127.0.0.1";
-            public int ServerPort = 8888;
+            public int ServerPort = 18888;
             public String Nickname = "unknown";
             public String GamePath = "";
 

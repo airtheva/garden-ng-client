@@ -221,6 +221,9 @@ namespace GardenNGClient
             public int RightPlayerCharacter;
             public String RightPlayerCharacterName;
             public int RightPlayerScore;
+            public bool IsHost;
+            public int Skip;
+            public String Version;
 
         }
 
@@ -249,6 +252,7 @@ namespace GardenNGClient
         IntPtr mHProcess;
         bool mIsWatching;
 
+        String mVersion;
         int mLastBattleMode;
 
         private SWRSMonitor()
@@ -291,20 +295,14 @@ namespace GardenNGClient
                         if ((hWnd = Win32API.FindWindow("th123_110", null)) != IntPtr.Zero)
                         {
 
-                            SWRS_ADDR.Load("1.10");
-                            GameFoundEventArgs e = new GameFoundEventArgs();
-                            e.Version = "1.10";
-                            OnGameFound(this, e);
+                            mVersion = "1.10";
                             break;
 
                         }
                         else if ((hWnd = Win32API.FindWindow("th123_110a", null)) != IntPtr.Zero)
                         {
 
-                            SWRS_ADDR.Load("1.10a");
-                            GameFoundEventArgs e = new GameFoundEventArgs();
-                            e.Version = "1.10a";
-                            OnGameFound(this, e);
+                            mVersion = "1.10a";
                             break;
 
                         }
@@ -315,7 +313,7 @@ namespace GardenNGClient
                         }
 
                     }
-                    
+
                     // 如果能够执行到这里，那就是找到游戏了。下面输出一些信息。
 
                     Console.WriteLine("hWnd: {0}.", hWnd);
@@ -326,6 +324,11 @@ namespace GardenNGClient
 
                     mHProcess = Win32API.OpenProcess(Win32API.ProcessAccessFlags.VMRead, false, dwProcessId);
                     Console.WriteLine("hProcess: {0}.", mHProcess);
+
+                    SWRS_ADDR.Load(mVersion);
+                    GameFoundEventArgs e = new GameFoundEventArgs();
+                    e.Version = mVersion;
+                    OnGameFound(this, e);
 
                 }
 
@@ -408,6 +411,10 @@ namespace GardenNGClient
                                             Win32API.ReadProcessMemory(mHProcess, pRChar + SWRS_ADDR.WINCNTOFS, lpBuffer, 4, out lpNumberOfBytesRead);
                                             e.RightPlayerScore = lpBuffer[0];
 
+                                            e.IsHost = communicationMode == SWRSCOMMMODE.SERVER ? true : false;
+                                            e.Skip = 0;
+                                            e.Version = mVersion;
+
                                             OnBattleEnded(this, e);
 
                                         }
@@ -443,11 +450,16 @@ namespace GardenNGClient
         public void Start()
         {
 
-            mIsWatching = true;
+            if (!mIsWatching && mThread == null)
+            {
 
-            mThread = new Thread(new ThreadStart(watch));
+                mIsWatching = true;
 
-            mThread.Start();
+                mThread = new Thread(new ThreadStart(watch));
+
+                mThread.Start();
+
+            }
 
         }
 

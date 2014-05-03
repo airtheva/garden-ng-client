@@ -45,7 +45,7 @@ namespace GardenNGClient
             {
 
                 public String type;
-                public String gardenHost;
+                public String address;
 
             }
 
@@ -58,7 +58,7 @@ namespace GardenNGClient
             {
 
                 public int status;
-                public UserData[] users;
+                public Dictionary<String, UserData> users;
 
             }
 
@@ -78,6 +78,12 @@ namespace GardenNGClient
             public class NewMessage : MessageData
             {
                 public int status;
+            }
+
+            public class Slaves
+            {
+                public int status;
+                public Dictionary<String, SlaveData> slaves;
             }
 
             public class Forward
@@ -119,6 +125,14 @@ namespace GardenNGClient
             public String nickname;
             public String identity;
             public String message;
+
+        }
+
+        public class SlaveData
+        {
+
+            public String name;
+            public String address;
 
         }
 
@@ -225,7 +239,21 @@ namespace GardenNGClient
 
         }
 
-        public void Mount(String type)
+        public void GetSlaves()
+        {
+
+            Message<Object> json = new Message<Object>();
+
+            json.type = "getSlaves";
+            json.data = null;
+
+            String j = SimpleJson.SimpleJson.SerializeObject(json);
+
+            WebSocket.Send(j);
+
+        }
+
+        public void Mount(String type, String address)
         {
 
             Message<Request.Mount> json = new Message<Request.Mount>();
@@ -234,7 +262,7 @@ namespace GardenNGClient
 
             json.data = new Request.Mount();
             json.data.type = type;
-            json.data.gardenHost = Settings.GetInstance().Store.ServerHost;
+            json.data.address = address;
 
             String j = SimpleJson.SimpleJson.SerializeObject(json);
 

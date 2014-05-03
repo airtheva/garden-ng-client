@@ -129,14 +129,33 @@
   <metadata name="Column11.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
+  <metadata name="Column1.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column2.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column3.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column4.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column5.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="richTextBox2.Text" xml:space="preserve">
-    <value>Garden NG Client alpha, by airtheva.
+    <value>Garden NG Client beta, by airtheva.
 
 这大概也许是一个只能玩风险投资的平台。
 打算把原TAC平台上的一些功能实现进来，也想结合天则观的一些功能，比如房间列表，进程注入啥的，当然只是展望了。
 
 目前完成的功能很简单，聊天，用户列表啥的（其实目前也没什么用233）。
 最主要的应该是映射功能。目前只完成了UDP Socket Proxy模式，不需要管理员权限，可以放心使用。
+现在已经支持战斗记录，并且可以合并到天则观。
+中转功能有多个地域的服务器可以选择，现在采用了master/slave模式，欢迎志愿者的加入。
+
+接下来可能是把中转里的其它字段完善了，然后把工具里的坑填了。
 
 源代码：
 https://github.com/airtheva/garden-ng-client/
