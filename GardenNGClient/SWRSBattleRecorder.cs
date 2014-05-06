@@ -25,12 +25,15 @@ namespace GardenNGClient
 
         }
 
+        bool mIsRecording;
+
         String mPath;
         SQLiteConnection mDatabase;
-        SWRSMonitor.BattleEndedEventHandler mOnBattleEndedEventHandler;
 
         private SWRSBattleRecorder()
         {
+
+            mIsRecording = false;
 
             mPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase.Substring(8)), "database.db");
 
@@ -38,13 +41,12 @@ namespace GardenNGClient
 
             mDatabase.Open();
 
-            mOnBattleEndedEventHandler = delegate(Object sender, SWRSMonitor.BattleEndedEventArgs e)
-            {
+            hook();
 
-                Console.WriteLine("Battle recording.");
-                Add(e.Time, e.LeftPlayerProfile, e.LeftPlayerCharacter, e.LeftPlayerScore, e.RightPlayerProfile, e.RightPlayerCharacter, e.RightPlayerScore, e.IsHost, e.Skip, e.Version);
+        }
 
-            };
+        void initialize()
+        {
 
             using (SQLiteTransaction transaction = mDatabase.BeginTransaction())
             {
@@ -76,10 +78,28 @@ namespace GardenNGClient
 
         }
 
+        void hook()
+        {
+
+            SWRSMonitor.GetInstance().OnBattleEnded += delegate(Object sender, SWRSMonitor.BattleEndedEventArgs e)
+            {
+
+                if (mIsRecording)
+                {
+
+                    Console.WriteLine("Battle recording.");
+                    Add(e.Time, e.LeftPlayerProfile, e.LeftPlayerCharacter, e.LeftPlayerScore, e.RightPlayerProfile, e.RightPlayerCharacter, e.RightPlayerScore, e.IsHost, e.Skip, e.Version);
+
+                }
+
+            };
+
+        }
+
         public void Start()
         {
 
-            SWRSMonitor.GetInstance().OnBattleEnded += mOnBattleEndedEventHandler;
+            mIsRecording = true;
 
         }
 
@@ -214,7 +234,7 @@ namespace GardenNGClient
         public void Stop()
         {
 
-            SWRSMonitor.GetInstance().OnBattleEnded -= mOnBattleEndedEventHandler;
+            mIsRecording = false;
 
         }
 

@@ -248,9 +248,10 @@ namespace GardenNGClient
 
         }
 
+        bool mIsWatching;
+
         Thread mThread;
         IntPtr mHProcess;
-        bool mIsWatching;
 
         String mVersion;
         int mLastBattleMode;
@@ -258,9 +259,9 @@ namespace GardenNGClient
         private SWRSMonitor()
         {
 
-            mHProcess = IntPtr.Zero;
-
             mIsWatching = false;
+
+            mHProcess = IntPtr.Zero;
 
         }
 
